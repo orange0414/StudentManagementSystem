@@ -6,11 +6,13 @@ from PyQt5.QtWidgets import (
     QLabel, QLineEdit, QPushButton, QListWidget, QMessageBox, QStatusBar
 )   
 from datetime import datetime
+
 # Student data file name
 NOW = datetime.now()
 YEAR = NOW.year
 STUDENTS_FILE = "students.json"    
 VALID_DNI_LENGTH = [8,9]
+
 # Load data from file and return it
 def load_students():
     if not os.path.exists(STUDENTS_FILE):   # Check if the file exists, if not, create it with an empty list
