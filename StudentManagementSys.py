@@ -4,11 +4,13 @@ import os
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QPushButton, QListWidget, QMessageBox, QStatusBar
-)
-
+)   
+from datetime import datetime
 # Student data file name
+NOW = datetime.now()
+YEAR = NOW.year
 STUDENTS_FILE = "students.json"    
-
+VALID_DNI_LENGTH = [8,9]
 # Load data from file and return it
 def load_students():
     if not os.path.exists(STUDENTS_FILE):   # Check if the file exists, if not, create it with an empty list
@@ -27,7 +29,7 @@ class StudentManagementApp(QMainWindow):
         # Main window initialization
         super().__init__()
         self.setWindowTitle("Student Management System")
-        self.setGeometry(100, 100, 600, 400)
+        self.setGeometry(125, 125, 700, 650)
 
         # Main widget initialization
         self.centralWidget = QWidget()
@@ -42,14 +44,14 @@ class StudentManagementApp(QMainWindow):
         # Input area
         self.input_layout = QHBoxLayout()
         self.name_input = QLineEdit()
-        self.age_input = QLineEdit()
+        self.borthYear_input = QLineEdit()
         self.grade_input = QLineEdit()
         self.dni_input = QLineEdit()
 
         self.input_layout.addWidget(QLabel("Name:"))
         self.input_layout.addWidget(self.name_input)
-        self.input_layout.addWidget(QLabel("Age:"))
-        self.input_layout.addWidget(self.age_input)
+        self.input_layout.addWidget(QLabel("Borth year:"))
+        self.input_layout.addWidget(self.borthYear_input)
         self.input_layout.addWidget(QLabel("Grade:"))
         self.input_layout.addWidget(self.grade_input)
         self.input_layout.addWidget(QLabel("DNI:"))
@@ -65,12 +67,21 @@ class StudentManagementApp(QMainWindow):
         self.button_layout.addWidget(self.delete_button)
         self.button_layout.addWidget(self.update_button)
 
+        # Search area
+        self.search_layout = QHBoxLayout()
+        self.search_input = QLineEdit()
+        self.search_button = QPushButton("Search")
+        self.search_layout.addWidget(QLabel("Search by DNI:"))
+        self.search_layout.addWidget(self.search_input)
+        self.search_layout.addWidget(self.search_button)
+        
         # Student list
         self.student_list = QListWidget()
 
         # Add widgets to the main layout
         self.layout.addLayout(self.input_layout)
         self.layout.addLayout(self.button_layout)
+        self.layout.addLayout(self.search_layout)
         self.layout.addWidget(self.student_list)
 
         # Connect the buttons to the functions
@@ -78,25 +89,42 @@ class StudentManagementApp(QMainWindow):
         self.delete_button.clicked.connect(self.delete_student)
         self.update_button.clicked.connect(self.update_student)
         self.student_list.itemSelectionChanged.connect(self.select_student)
+        self.search_button.clicked.connect(self.search_student)
 
         # Update student list
         self.update_student_list()
+    
+    def search_student(self):
+        student_dni = self.search_input.text().strip()
+        if self.dni_exists(student_dni):
+            students = load_students()
+            for student in students:
+                if student['dni'] == student_dni:
+                    self.name_input.setText(student['name'])
+                    self.borthYear_input.setText(student['borthYear'])
+                    self.grade_input.setText(student['grade'])
+                    self.dni_input.setText(student['dni']) 
+                    self.student_list.scrollToItem(self.student_list.item(students.index(student)))
+                    self.student_list.setCurrentRow(students.index(student))
+        else:
+            QMessageBox.warning(self, "Error", "Student not found!")
         
+    
     def update_student_list(self):
         self.student_list.clear()
         students = load_students()
         for student in students:
             self.student_list.addItem(
-                f"{student['name']} - {student['age']} years old - Grade {student['grade']} - DNI: {student['dni']}"
+                f"{student['name']}\t {YEAR -int(student['borthYear'])} years old   \t Grade {student['grade']}\t DNI: {student['dni']}"
             )
 
     def add_student(self):
         name = self.name_input.text().strip()
-        age = self.age_input.text().strip()
+        borthYear = self.borthYear_input.text().strip()
         grade = self.grade_input.text().strip()
         dni = self.dni_input.text().strip()
-        student = {"name": name, "age": age, "grade": grade, "dni": dni}
-        if name and age and grade and dni:
+        student = {"name": name, "borthYear": borthYear, "grade": grade, "dni": dni}
+        if name and borthYear and grade and dni:
             if not self.check_OK(student):
                 return
             if self.dni_exists(dni):
@@ -128,15 +156,12 @@ class StudentManagementApp(QMainWindow):
         selected = self.student_list.currentRow()
         if selected >= 0:
             name = self.name_input.text().strip()
-            age = self.age_input.text().strip()
+            borthYear = self.borthYear_input.text().strip()
             grade = self.grade_input.text().strip()
             dni = self.dni_input.text().strip()
-            student = {"name": name, "age": age, "grade": grade, "dni": dni}
-            if name and age and grade and dni:
+            student = {"name": name, "borthYear": borthYear, "grade": grade, "dni": dni}
+            if name and borthYear and grade and dni:
                 if not self.check_OK(student):
-                    return
-                if self.dni_exists(dni):
-                    QMessageBox.warning(self, "Error", "DNI already exists!")
                     return
                 students = load_students()
                 students[selected] = student
@@ -157,7 +182,7 @@ class StudentManagementApp(QMainWindow):
             if selected < len(students):  
                 student = students[selected]
                 self.name_input.setText(student["name"])
-                self.age_input.setText(student["age"])
+                self.borthYear_input.setText(student["borthYear"])
                 self.grade_input.setText(student["grade"])
                 self.dni_input.setText(student["dni"])
 
@@ -169,19 +194,23 @@ class StudentManagementApp(QMainWindow):
         return False
     
     def check_OK(self,student):
-        if not student['age'].isdigit():
+        if not student['borthYear'].isdigit():
             QMessageBox.warning(self, "Error", "Age must be a number!")
-            return
+            return  False
+        elif not student['borthYear'] <= NOW.year:
+            QMessageBox.warning(self, "Error", "Borth year must be less than current year!")
+            return  False
         if not student['grade'].isdigit():
             QMessageBox.warning(self, "Error", "Grade must be a number!")
-            return
-        if len(student['dni']) != 8 or not student['dni'].isdigit():
-            QMessageBox.warning(self, "Error", "DNI must be an 8-digit number!")
-            return
+            return  False
+        if not len(student['dni']) in VALID_DNI_LENGTH:
+            QMessageBox.warning(self, "Error", "DNI must be an 8~9 digit number!")
+            return  False
+        return True
 
     def clear_inputs(self):
         self.name_input.clear()
-        self.age_input.clear()
+        self.borthYear_input.clear()
         self.grade_input.clear()
         self.dni_input.clear()
 
