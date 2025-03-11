@@ -69,7 +69,7 @@ class StudentManagementApp(QMainWindow):
         self.button_layout.addWidget(self.delete_button)
         self.button_layout.addWidget(self.update_button)
 
-        # Search area
+        # Search layout area
         self.search_layout = QHBoxLayout()
         self.search_input = QLineEdit()
         self.search_button = QPushButton("Search")
