@@ -7,8 +7,10 @@
 ####    - Update student information.
 ####    - Delete student records.
 ####    - View a list of students.
-####    - Search student by DNI(ID number)
-####    - Status bar displays success or error messages.
+####    - Search student by DNI(ID number).
+####    - Sort student list in alphabetical order by name or reverse
+####    - Status bar displays success messages.
+####    - Errors are warned by a MessageBox
 ####    - Data is stored and managed in a students.json file.
 
 ##   Prerequisites

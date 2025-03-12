@@ -44,7 +44,7 @@ class StudentManagementApp(QMainWindow):
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("Welcome to the Student Management System", 5000)
 
-        # Input area
+        # Input Data area
         self.input_layout = QHBoxLayout()
         self.name_input = QLineEdit()
         self.birthYear_input = QLineEdit()
@@ -60,7 +60,7 @@ class StudentManagementApp(QMainWindow):
         self.input_layout.addWidget(QLabel("DNI:"))
         self.input_layout.addWidget(self.dni_input)
 
-        # Button area
+        # Basic Button area
         self.button_layout = QHBoxLayout()
         self.add_button = QPushButton("Add Student")
         self.delete_button = QPushButton("Delete Student")
@@ -70,13 +70,22 @@ class StudentManagementApp(QMainWindow):
         self.button_layout.addWidget(self.delete_button)
         self.button_layout.addWidget(self.update_button)
 
-        # Search layout area
+        # Search and Sort layout area
         self.search_layout = QHBoxLayout()
         self.search_input = QLineEdit()
         self.search_button = QPushButton("Search")
+        self.sort_button = QPushButton("Sort")
+        self.reverse_sort_button = QPushButton("Reverse Sort")
+        
+        self.search_button.setFixedSize(100,30)
+        self.sort_button.setFixedSize(100,30)
+        self.reverse_sort_button.setFixedSize(100,30)
+        
         self.search_layout.addWidget(QLabel("Search by DNI:"))
         self.search_layout.addWidget(self.search_input)
         self.search_layout.addWidget(self.search_button)
+        self.search_layout.addWidget(self.sort_button)
+        self.search_layout.addWidget(self.reverse_sort_button)
         
         # Student table area
         self.student_list = QTreeWidget()
@@ -95,36 +104,49 @@ class StudentManagementApp(QMainWindow):
         self.update_button.clicked.connect(self.update_student)
         self.student_list.itemSelectionChanged.connect(self.select_student)
         self.search_button.clicked.connect(self.search_student)
+        self.sort_button.clicked.connect(self.sort_students)
+        self.reverse_sort_button.clicked.connect(self.reverse_sort_students)
 
         # Update student list
         self.update_student_list()
-    
-    def search_student(self):
-        student_dni = self.search_input.text().strip()
-        if self.dni_exists(student_dni):
+
+    def reverse_sort_students(self):
+        if self.student_list.topLevelItemCount() > 0:
             students = load_students()
-            for student in students:
-                if student['dni'] == student_dni:
-                    self.name_input.setText(student['name'])
-                    self.birthYear_input.setText(student['birthYear'])
-                    self.grade_input.setText(student['grade'])
-                    self.dni_input.setText(student['dni'])
-                    item = self.student_list.findItems(student['dni'], Qt.MatchFlag.MatchExactly,3)
-                    self.student_list.scrollToItem(item[0])
-                    self.student_list.setCurrentItem(item[0])
-        elif student_dni == "":
-            QMessageBox.warning(self, "Error", "Please enter a DNI to search!")
+            students.sort(key=lambda x: x['name'], reverse=True)
+            save_students(students)
+            self.update_student_list()
+            self.status_bar.showMessage("Students sorted by name in reverse order!", 5000)
         else:
-            QMessageBox.warning(self, "Error", "Student not found!")
-        
-    
+            QMessageBox.warning(self, "Error", "No students to sort!")
+
+    def sort_students(self):
+        if self.student_list.topLevelItemCount() > 0:
+            students = load_students()
+            students.sort(key=lambda x: x['name'])
+            save_students(students)
+            self.update_student_list()
+            self.status_bar.showMessage("Students sorted by name!", 5000)
+        else:
+            QMessageBox.warning(self, "Error", "No students to sort!")
+
+    def select_student(self):
+        selected = self.student_list.currentIndex().row()
+        students = load_students()
+        if 0 <= selected < len(students):
+            student = students[selected]
+            self.name_input.setText(student['name'])
+            self.birthYear_input.setText(student['birthYear'])
+            self.grade_input.setText(student['grade'])
+            self.dni_input.setText(student['dni'])
+
     def update_student_list(self):
         self.student_list.clear()
         students = load_students()
         for student in students:
             item = QTreeWidgetItem([student['name'],str(YEAR-int(student['birthYear'])),student['grade'],student['dni']])
             self.student_list.addTopLevelItem(item)
-
+    
     def add_student(self):
         name = self.name_input.text().strip()
         birthYear = self.birthYear_input.text().strip()
@@ -145,7 +167,7 @@ class StudentManagementApp(QMainWindow):
             self.status_bar.showMessage("Student added successfully!", 5000)
         else:
             QMessageBox.warning(self, "Error", "Please fill all fields!")
-
+    
     def delete_student(self):
         selected = self.student_list.currentIndex().row()      # Get the selected student, if theres any, if not, return -1
         if selected >= 0:
@@ -182,16 +204,24 @@ class StudentManagementApp(QMainWindow):
         else:
             QMessageBox.warning(self, "Error", "Please select a student to update!")
 
-    def select_student(self):
-        selected = self.student_list.currentIndex().row()
-        students = load_students()
-        if 0 <= selected < len(students):
-            student = students[selected]
-            self.name_input.setText(student['name'])
-            self.birthYear_input.setText(student['birthYear'])
-            self.grade_input.setText(student['grade'])
-            self.dni_input.setText(student['dni'])
-        
+    def search_student(self):
+        student_dni = self.search_input.text().strip()
+        if self.dni_exists(student_dni):
+            students = load_students()
+            for student in students:
+                if student['dni'] == student_dni:
+                    self.name_input.setText(student['name'])
+                    self.birthYear_input.setText(student['birthYear'])
+                    self.grade_input.setText(student['grade'])
+                    self.dni_input.setText(student['dni'])
+                    item = self.student_list.findItems(student['dni'], Qt.MatchFlag.MatchExactly,3)
+                    self.student_list.scrollToItem(item[0])
+                    self.student_list.setCurrentItem(item[0])
+        elif student_dni == "":
+            QMessageBox.warning(self, "Error", "Please enter a DNI to search!")
+        else:
+            QMessageBox.warning(self, "Error", "Student not found!")
+    
     def dni_exists(self,dni):
         students = load_students()
         for student in students:
