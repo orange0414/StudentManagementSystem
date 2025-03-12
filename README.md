@@ -7,6 +7,7 @@
 ####    - Update student information.
 ####    - Delete student records.
 ####    - View a list of students.
+####    - Search student by DNI(ID number)
 ####    - Status bar displays success or error messages.
 ####    - Data is stored and managed in a students.json file.
 
