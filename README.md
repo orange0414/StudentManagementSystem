@@ -3,7 +3,7 @@
 ####    A simple Python application using PyQt5 that allows you to manage student records. You can add, update, delete, and view student information such as name, age, grade, and DNI (ID number). The data is stored in a local JSON file.
 
 ##   Features
-####    - Add a student with the following fields: Name, Age, Grade, DNI.
+####    - Add a student with the following fields: Name, Birth year, Grade, DNI.
 ####    - Update student information.
 ####    - Delete student records.
 ####    - View a list of students.
