@@ -1,29 +1,52 @@
-#   Student Management System
+# Student Management System
 
-####    A simple Python application using PyQt5 that allows you to manage student records. You can add, update, delete, and view student information such as name, age, grade, and DNI (ID number). The data is stored in a local JSON file.
+Student Management System
 
-##   Features
-####    - Add a student with the following fields: Name, Birth year, Grade, DNI.
-####    - Update student information.
-####    - Delete student records.
-####    - View a list of students.
-####    - Search student by DNI(ID number).
-####    - Sort student list in alphabetical order by name or reverse
-####    - Status bar displays success messages.
-####    - Errors are warned by a MessageBox
-####    - Data is stored and managed in a students.json file.
+## Description
 
-##   Prerequisites
-####    Before you can run this application, make sure you have the following installed:
-####    - Python 3.x
-####    - PyQt5
+*Student Management System* is an application developed in Python using **PyQt5**. It allows you to easily manage student records by adding, updating, deleting, and viewing information, which is stored locally in a `students.json` file.
 
-## How it Works
-#### 1.The application opens a window with input fields to add or search student information.
-#### 2.The status bar at the bottom provides feedback after actions (e.g., "Student added successfully!").
-#### 3.You can view the list of students.
-#### 4.When you select a student from the list, their data will be displayed in the input fields, where you can update or delete them.
+## Features
 
-## Limitations
-#### - Currently, the student information is only stored locally in the students.json file.
-#### - No database integration.
+- **Add Students:**  
+  Register students with the following fields:  
+  - Name  
+  - Year of Birth  
+  - Grade  
+  - DNI (Identification Number)
+  
+- **Update Information:**  
+  Allows you to modify the data of an existing student.
+  
+- **Delete Records:**  
+  Easily remove a student record.
+  
+- **View Student List:**  
+  Displays a list of all registered students.
+  
+- **Search by DNI:**  
+  Helps you locate students using their DNI.
+  
+- **Sorting:**  
+  Sorts the student list alphabetically (ascending or descending).
+  
+- **User Feedback:**  
+  - The status bar displays success messages.
+  - Errors are reported using pop-up windows (`QMessageBox`).
+
+## Requirements
+
+- Python 3.x
+- PyQt5
+
+> **Installing PyQt5:**  
+> Run the following command in your terminal:
+> ```bash
+> pip install pyqt5
+> ```
+
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <REPOSITORY_URL>
